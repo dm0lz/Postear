@@ -7,6 +7,9 @@ gem 'omniauth-twitter'
 gem 'twitter'
 gem 'pry'
 gem 'haml'
-gem 'thin'
-gem "binding_of_caller"
-gem "better_errors"
+gem 'sass'
+gem 'binding_of_caller'
+gem 'better_errors'
+gem 'symbolmatrix'
+gem 'mongo'
+gem 'koala'
