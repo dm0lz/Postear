@@ -14,13 +14,13 @@
 		%link{:rel => "stylesheet", :href => "style.css"}
 
 	%body
-		%nav
+		%nav.container
 			%h1
 				Postear
 		-5.times do
 			%br
-		%section
-			%form{:name => "selectprovider", :action => "/test", :method => "POST"}
+		%section.container
+			%form{:name => "selectprovider", :action => "/postear", :method => "POST"}
 				%label.checkbox.inline
 					%input#twitter{:type => "checkbox", :name => "twitter"} twitter
 				%label.checkbox.inline

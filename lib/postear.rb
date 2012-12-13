@@ -41,54 +41,50 @@ class Postear < Sinatra::Base
 		haml :index 
 	end
 
-	post '/test' do
+	post '/postear' do
 		coll
-		getCredentials 308762265
+		getTwitterCredentials 308762265
+		getFacebookCredentials 100002221264673
 		twitterClient
 		facebookClient
 		session["twitterprovider"] = params["twitter"]
 		session["facebookprovider"] = params["facebook"]
 		session["message"] = params["message"]
 		twitterClient.update session["message"] if session["twitterprovider"] == "on"
-		facebookClient.update session["message"] if session["facebookprovider"] == "on"
-		binding.pry
+		facebookClient.put_connections("me", "feed", :message => session["message"]) if session["facebookprovider"] == "on"
+		#binding.pry
 
-		redirect '/tt'
+		redirect '/posted'
 	end
 
-	get '/tt' do
-		'ooo'
+	get '/posted' do
+		'Your post was succeffully processed !!'
 	end
 
 	helpers do
 		def twitterClient
-			@twitterClient ||= Twitter::Client.new(:oauth_token => @access_token, 
-											:oauth_token_secret => @access_secret)
+			@twitterClient ||= Twitter::Client.new(:oauth_token => @twitter_access_token, 
+											:oauth_token_secret => @twitter_access_secret)
 		end
-
-		def twitterClient
-			@twitterClient ||= Koala::Facebook::Client.new(:oauth_token => @access_token, 
-											:oauth_token_secret => @access_secret)
+		def facebookClient
+			@facebookClient ||= Koala::Facebook::API.new @facebook_access_token
 		end
-
 		def client
 	    @client ||= Mongo::Connection.new("mongocfg1.fetcher")
 	  end
-
 	  def db
 	    @db ||= client["test"]
 	  end
-
 	  def coll
 	    @coll ||= db["http://schema.org/Person/User"]
 	  end
-
-	  def getCredentials id
-	  	@access_token = @coll.find("Item#id" => id).collect{|i| i['accessToken']}.first
-			@access_secret = @coll.find("Item#id" => id).collect{|i| i['accessSecret']}.first
-			#@user_id = @coll.find("Item#id" => id).collect{|i| i['accessSecret']}.first
+	  def getTwitterCredentials id
+	  	@twitter_access_token = @coll.find("Item#id" => id).collect{|i| i['accessToken']}.first
+			@twitter_access_secret = @coll.find("Item#id" => id).collect{|i| i['accessSecret']}.first
 	  end
-
+	  def getFacebookCredentials id
+	  	@facebook_access_token = @coll.find("Item#id" => id).collect{|i| p i["accessToken"]}.join
+	  end
 	end
 
 end
