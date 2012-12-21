@@ -74,14 +74,14 @@ class Postear < Sinatra::Base
 	  def getPersonUserAccountsId 
 	  	@cuentas = User.where(login: "olivier").first.PersonUser
 	  end
-	  def getPersonUserName
-	  	@names = getPersonUserAccountsId.collect do |cuenta|
-	  		PersonUser.find(cuenta).name.join
-	  	end
-	  end
 	  def getPersonUser
 	  	@person = getPersonUserAccountsId.collect do |person|
 	  		PersonUser.find(person)
+	  	end
+	  end
+	  def getPersonUserName
+	  	@names = getPersonUserAccountsId.collect do |cuenta|
+	  		PersonUser.find(cuenta).name.join
 	  	end
 	  end
 	  def getitemId
@@ -108,6 +108,7 @@ class Postear < Sinatra::Base
 	  end
 	  def postear
 	  	getitemId.each do |itemId|
+	  		#unless blablabla...
 	  		getTwitterCredentials itemId.to_i
 	  		twitterClient
 	  		postTwitter
