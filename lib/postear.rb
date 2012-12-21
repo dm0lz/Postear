@@ -8,6 +8,9 @@ require 'better_errors'
 require 'symbolmatrix'
 require 'mongo'
 require 'koala'
+require 'fetcher-mongoid-models'
+
+Fetcher::Mongoid::Models::Db.new "/home/fetcher/Desktop/Postear/config/database.yml"
 
 class Postear < Sinatra::Base
 
@@ -37,22 +40,28 @@ class Postear < Sinatra::Base
 	end
 
 	get '/' do
-		client
+		@person = getPersonUser
+		
+		#binding.pry
 		haml :index 
 	end
 
 	post '/postear' do
-		coll
-		getTwitterCredentials 308762265
-		getFacebookCredentials 100002221264673
-		twitterClient
-		facebookClient
+		
+		#getTwitterCredentials 308762265
+		#getFacebookCredentials 100002221264673
+		#twitterClient
+		#facebookClient
 		session["twitterprovider"] = params["twitter"]
 		session["facebookprovider"] = params["facebook"]
 		session["message"] = params["message"]
-		twitterClient.update session["message"] if session["twitterprovider"] == "on"
-		facebookClient.put_connections("me", "feed", :message => session["message"]) if session["facebookprovider"] == "on"
-		#binding.pry
+		getPersonUser.each do |person|
+			session[person.itemId.join] = params[person.itemId.join]
+		end
+		#twitterClient.update session["message"] if session["twitterprovider"] == "on"
+		#facebookClient.put_connections("me", "feed", :message => session["message"]) if session["facebookprovider"] == "on"
+		postear
+		binding.pry
 
 		redirect '/posted'
 	end
@@ -62,29 +71,49 @@ class Postear < Sinatra::Base
 	end
 
 	helpers do
-		def twitterClient
-			@twitterClient ||= Twitter::Client.new(:oauth_token => @twitter_access_token, 
+	  def getPersonUserAccountsId 
+	  	@cuentas = User.where(login: "olivier").first.PersonUser
+	  end
+	  def getPersonUserName
+	  	@names = getPersonUserAccountsId.collect do |cuenta|
+	  		PersonUser.find(cuenta).name.join
+	  	end
+	  end
+	  def getPersonUser
+	  	@person = getPersonUserAccountsId.collect do |person|
+	  		PersonUser.find(person)
+	  	end
+	  end
+	  def getitemId
+	  	@itemId = getPersonUserAccountsId.collect do |item|
+	  		PersonUser.find(item).itemId.join
+	  	end
+	  end
+	  def getTwitterCredentials id
+	  	@twitter_access_token = PersonUser.where(itemId: id).first.accessToken
+			@twitter_access_secret = PersonUser.where(itemId: id).first.accessSecret
+	  end
+	  def getFacebookCredentials id
+	  	#@facebook_access_token = @coll.find("Item#id" => id).collect{|i| p i["accessToken"]}.join
+	  end
+		def twitterClient 
+			@twitterClient = Twitter::Client.new(:oauth_token => @twitter_access_token, 
 											:oauth_token_secret => @twitter_access_secret)
 		end
 		def facebookClient
-			@facebookClient ||= Koala::Facebook::API.new @facebook_access_token
+			@facebookClient = Koala::Facebook::API.new @facebook_access_token
 		end
-		def client
-	    @client ||= Mongo::Connection.new("mongocfg1.fetcher")
+	  def postTwitter
+	  	twitterClient.update session["message"] if session["twitterprovider"] == "on"
 	  end
-	  def db
-	    @db ||= client["test"]
+	  def postear
+	  	getitemId.each do |itemId|
+	  		getTwitterCredentials itemId.to_i
+	  		twitterClient
+	  		postTwitter
+	  	end
 	  end
-	  def coll
-	    @coll ||= db["http://schema.org/Person/User"]
-	  end
-	  def getTwitterCredentials id
-	  	@twitter_access_token = @coll.find("Item#id" => id).collect{|i| i['accessToken']}.first
-			@twitter_access_secret = @coll.find("Item#id" => id).collect{|i| i['accessSecret']}.first
-	  end
-	  def getFacebookCredentials id
-	  	@facebook_access_token = @coll.find("Item#id" => id).collect{|i| p i["accessToken"]}.join
-	  end
+
 	end
 
 end

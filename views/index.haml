@@ -21,10 +21,13 @@
 			%br
 		%section.container
 			%form{:name => "selectprovider", :action => "/postear", :method => "POST"}
-				%label.checkbox.inline
+				%label.checkbox
 					%input#twitter{:type => "checkbox", :name => "twitter"} twitter
-				%label.checkbox.inline
-					%input#facebook{:type => "checkbox", :name => "facebook"} facebook
+				- @person.each do |person|
+					%label.checkbox.inline
+						%input#facebook{:type => "checkbox", :name => person.itemId} 
+							= person.name.join
+
 				-2.times do
 					%br
 				%textarea#msg{:rows => 5, :name => "message"}
