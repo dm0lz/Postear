@@ -10,7 +10,7 @@ require 'mongo'
 require 'koala'
 require 'fetcher-mongoid-models'
 
-Fetcher::Mongoid::Models::Db.new "/home/fetcher/Desktop/Postear/config/database.yml"
+Fetcher::Mongoid::Models::Db.new "/Users/molz/Desktop/Postear/config/database.yml"
 
 class Postear < Sinatra::Base
 
@@ -72,7 +72,7 @@ class Postear < Sinatra::Base
 
 	helpers do
 	  def getPersonUserAccountsId 
-	  	@cuentas = User.where(login: "olivier").first.PersonUser
+	  	@cuentas = User.where(login: "jean").first.PersonUser
 	  end
 	  def getPersonUser
 	  	@person = getPersonUserAccountsId.collect do |person|
@@ -103,15 +103,20 @@ class Postear < Sinatra::Base
 		def facebookClient
 			@facebookClient = Koala::Facebook::API.new @facebook_access_token
 		end
+		def checked? itemId
+			session[itemId] == "on"
+		end
 	  def postTwitter
 	  	twitterClient.update session["message"] if session["twitterprovider"] == "on"
 	  end
 	  def postear
 	  	getitemId.each do |itemId|
-	  		#unless blablabla...
-	  		getTwitterCredentials itemId.to_i
-	  		twitterClient
-	  		postTwitter
+	  		if checked? itemId
+		  		getTwitterCredentials itemId.to_i
+		  		twitterClient
+		  		postTwitter
+		  		binding.pry
+		  	end
 	  	end
 	  end
 
