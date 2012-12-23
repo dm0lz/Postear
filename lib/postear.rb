@@ -96,22 +96,23 @@ class Postear < Sinatra::Base
 	  def getFacebookCredentials id
 	  	#@facebook_access_token = @coll.find("Item#id" => id).collect{|i| p i["accessToken"]}.join
 	  end
-		def twitterClient 
-			@twitterClient = Twitter::Client.new(:oauth_token => @twitter_access_token, 
-											:oauth_token_secret => @twitter_access_secret)
-		end
-		def facebookClient
-			@facebookClient = Koala::Facebook::API.new @facebook_access_token
-		end
-		def checked? itemId
-			session[itemId] == "on"
-		end
+	  def twitterClient 
+	  	@twitterClient = Twitter::Client.new(:oauth_token => @twitter_access_token, 
+	  									:oauth_token_secret => @twitter_access_secret)
+	  end
+	  def facebookClient
+	  	@facebookClient = Koala::Facebook::API.new @facebook_access_token
+	  end
+	  def checked? itemId
+	  	session[itemId] == "on"
+	  end
 	  def postTwitter
 	  	twitterClient.update session["message"] if session["twitterprovider"] == "on"
 	  end
 	  def postear
 	  	getitemId.each do |itemId|
 	  		if checked? itemId
+		  		#binding.pry
 		  		getTwitterCredentials itemId.to_i
 		  		twitterClient
 		  		postTwitter
