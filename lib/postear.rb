@@ -10,14 +10,14 @@ require 'mongo'
 require 'koala'
 require 'fetcher-mongoid-models'
 
-Fetcher::Mongoid::Models::Db.new "/Users/molz/Desktop/Postear/config/database.yml"
+Fetcher::Mongoid::Models::Db.new "config/database.yml"
 
 class Postear < Sinatra::Base
 
 	set :views, "views"
 	set :public_folder, "public"
 	set :haml, :format => :html5
-	set :port, 4567
+	set :port, 4569
 	enable :sessions
 	
 	use BetterErrors::Middleware
@@ -61,7 +61,7 @@ class Postear < Sinatra::Base
 		#twitterClient.update session["message"] if session["twitterprovider"] == "on"
 		#facebookClient.put_connections("me", "feed", :message => session["message"]) if session["facebookprovider"] == "on"
 		postear
-		binding.pry
+		#binding.pry
 
 		redirect '/posted'
 	end
@@ -115,7 +115,7 @@ class Postear < Sinatra::Base
 		  		getTwitterCredentials itemId.to_i
 		  		twitterClient
 		  		postTwitter
-		  		binding.pry
+		  		#binding.pry
 		  	end
 	  	end
 	  end
